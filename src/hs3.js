@@ -3,9 +3,54 @@
 var classes = require("./hs-classes.js");
 
 var hs = new classes.Homeseer("ws://pi.nine.ms:8087/homeseer");
+var Device = classes.Device;
 hs.on("ready", function() {
-    hs.devices(function(devs) {
-        console.log("DEVS", devs);
+    // hs.devices(function(devs) {
+    //     console.log("DEVS", devs);
+    // });
+    hs.addDevices([{
+        name: "foobardevice",
+        location: "floor",
+        location2: "room",
+        type: "type",
+        address: "test",
+        code: "code",
+        pairs: [
+            {
+                status: {
+                    //type: "single",
+                    value: 0,
+                    text: "hello",
+                    control: Device.StatusControl.Status,
+                    use: Device.Use.On,
+                    render: Device.Render.Button,
+                    //buttonImage: "",
+                    includeValues: false
+                },
+                graphic: {
+                    value: 0,
+                    //graphic: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAldJREFUeNrElz1sE0EQhd+e14YLxD8QrIjYshNFSJACRIEoQKJMg0QBFYUdGgoaJCTqq+kpaIhTITooQJRpQIKKAiES8WMriYLiJL74RAz23g47ZydCorX35nRXXPO9ffN2Vith6sGzZVx7eKeSzo55uXymjBFWa2uv3vb3veVHT5ea715B8M83s2cWZy6drRZvXYcsTo+SD7X2A5svXmP17afa/NfVBfGyOFOZu3KuVrh9E+j2EG5vjVRAYiIPpJKo155j5f1KVR4fP+rlL5+HWl8D+S2MuvTuDkQ2h9NXL2Ljc8OTmdxYGaGC3mnCVhGzXBfMlslkAhQEEELAZjGT2TIpHeOLBpnHbgkwW2odgsIQcRSzpQ7N6k0GYhFg2MYBFqBjckD3HUBcLTh0QIVxOkAxZoAgKQphPA5QvwXUF2B/DIDZkvSAbNsFaSYwC4gciM5JZV2APhDAx4DtHIiDFvCHLdDK7jBK0D8CiB2wPAvovxDGMIyiEIYsIAYHmBlGDlA/EdaHETMNe5ABEUMGxCADvAVYQE/bdwDRLhhsyp79FjBb9owKRTrqByzNAnEkGTGZLXsGzGt3jrnmUhJYEeBkUhGT2fIXqO43g/KpqZNQm207U9CwdpsBmJ2YT2f9rt+5cWJ2Em4+A/qjokDSb3M4hTS0VzgOnIlxpOYK2HdT+PLhO/a66n50G3kyVVrMp93q9IUScpNZSBMQ6Qz3oqI0Z43Q+unj28cGttud2t2NxsIh5XGhVEkRPBcom72JxJBt554rQ+sA9a6Ad2+9scT//wowAHwScv0fWHuwAAAAAElFTkSuQmCC"
+                    graphic: "images/checkbox_disabled_on.png"
+                }
+            },
+            {
+                status: {
+                    //type: "range",
+                    value: [0, 10],
+                    text: { prefix: "pre", suffix: "suff" },
+                    control: Device.StatusControl.Status | Device.StatusControl.Control,
+                    render: Device.Render.ValuesRangeSlider,
+                    includeValues: false
+                },
+                graphic: {
+                    value: [0, 10],
+                    graphic: "images/checkbox_on.png"
+                }
+            }
+
+        ]
+    }], function(devs) {
+        console.log("devices created!", devs);
     });
 });
 hs.on("request", function(req) {

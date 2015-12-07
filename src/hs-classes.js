@@ -15,6 +15,9 @@ Homeseer.prototype = {
     devices: function(cb) {
         this._request("devices", undefined, cb);
     },
+    addDevices: function(devs, cb) {
+        this._request("addDevices", devs, cb);
+    },
     on: function(type, cb) {
         this._ons[type] = cb;
     },
@@ -84,6 +87,10 @@ Homeseer.prototype = {
                 delete this._cbs[data.id];
                 cb(data);
             }
+        } else if (data.hasOwnProperty("type") && data.hasOwnProperty("data")) {
+            if (data.type === "setDeviceValues") {
+                console.log("devices updated", data.data);
+            }
         }
     },
     _onWsError: function(err) {
@@ -93,5 +100,14 @@ Homeseer.prototype = {
 
 var Device = function() {
 };
+
+Device.StatusControl = { Status: 0x1, Control: 0x2 };
+Device.Use = { On: 0, Off: 1, Dim: 2, OnAlternate: 3, Play: 4, Pause: 5, Stop: 6,
+               Forward: 7, Rewind: 8, Repeat: 10, Shuffle: 11, HeatSetPoint: 12,
+               CoolSetPoint: 13, ThermModeOff: 14, ThermModeHeat: 15, ThermModeCool: 16,
+               ThermModeAuto: 17, DoorLock: 18, DoorUnlock: 19 };
+Device.Render = { Values: 0, SingleTextFromList: 1, ListFromTextList: 2, Button: 3,
+                  ValuesRange: 4, ValuesRangeSlider: 5, TextList: 6, TextBoxNumber: 7,
+                  TextBoxString: 8, RadioOption: 9, ButtonScript: 10, ColorPicker: 11 };
 
 module.exports = { Device: Device, Homeseer: Homeseer };

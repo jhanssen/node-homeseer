@@ -106,11 +106,7 @@ Homeseer.prototype = {
                     if (id in deviceMap) {
                         var dev = deviceMap[id];
                         var newval = data.data[id];
-                        dev.value = newval.value;
-                        if ("text" in newval) {
-                            dev.text = newval.text;
-                        }
-                        dev._callOn("valueChanged", dev);
+                        dev._callOn("valueChanged", { device: dev, value: newval.value, text: newval.text });
                     }
                 }
                 console.log("devices updated", data.data);

@@ -16,7 +16,19 @@ Homeseer.prototype = {
         this._request("devices", undefined, cb);
     },
     addDevices: function(devs, cb) {
-        this._request("addDevices", devs, cb);
+        var hs = this;
+        this._request("addDevices", devs, function(data) {
+            var devs = data.devices;
+            var out = [];
+            if (devs instanceof Array) {
+                for (var dev in devs) {
+                    var nd = new Device(devs[dev].id, hs);
+                    deviceMap[nd.id] = nd;
+                    out.push(nd);
+                }
+            }
+            cb(out);
+        });
     },
     on: function(type, cb) {
         this._ons[type] = cb;
@@ -89,6 +101,18 @@ Homeseer.prototype = {
             }
         } else if (data.hasOwnProperty("type") && data.hasOwnProperty("data")) {
             if (data.type === "setDeviceValues") {
+                // find the device
+                for (var id in data.data) {
+                    if (id in deviceMap) {
+                        var dev = deviceMap[id];
+                        var newval = data.data[id];
+                        dev.value = newval.value;
+                        if ("text" in newval) {
+                            dev.text = newval.text;
+                        }
+                        dev._callOn("valueChanged", dev);
+                    }
+                }
                 console.log("devices updated", data.data);
             }
         }
@@ -98,7 +122,45 @@ Homeseer.prototype = {
     }
 };
 
-var Device = function() {
+var deviceMap = Object.create(null);
+
+var Device = function(id, hs) {
+    this._id = id;
+    this._hs = hs;
+};
+
+Device.prototype = {
+    _id: undefined,
+    _ons: Object.create(null),
+    _hs: undefined,
+    _value: undefined,
+    _text: undefined,
+
+    _callOn: function(type, arg) {
+        if (type in this._ons) {
+            var cb = this._ons[type];
+            return cb(arg);
+        }
+        return undefined;
+    },
+
+    get id() { return this._id; },
+    get value() { return this._value; },
+    get text() { return this._text; },
+    set value(v) {
+        this._value = v;
+        var req = { type: "deviceValueSet", data: { id: this._id, value: v } };
+        this._hs._ws.send(JSON.stringify(req));
+    },
+    set text(t) {
+        this._text = t;
+        var req = { type: "deviceTextSet", data: { id: this._id, text: t } };
+        this._hs._ws.send(JSON.stringify(req));
+    },
+
+    on: function(type, cb) {
+        this._ons[type] = cb;
+    }
 };
 
 Device.StatusControl = { Status: 0x1, Control: 0x2 };

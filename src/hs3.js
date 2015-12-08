@@ -3,7 +3,15 @@
 var classes = require("./hs-classes.js");
 
 var hs = new classes.Homeseer("ws://pi.nine.ms:8087/homeseer");
+var devs = [];
 var Device = classes.Device;
+
+function deviceValueChanged(dev)
+{
+    console.log("got value " + dev.value);
+    dev.text = "ting " + dev.value;
+}
+
 hs.on("ready", function() {
     // hs.devices(function(devs) {
     //     console.log("DEVS", devs);
@@ -49,8 +57,14 @@ hs.on("ready", function() {
             }
 
         ]
-    }], function(devs) {
-        console.log("devices created!", devs);
+    }], function(newdevs) {
+        for (var i = 0; i < newdevs.length; ++i) {
+            var d = newdevs[i];
+            d.on("valueChanged", deviceValueChanged);
+            devs.push(d);
+        }
+        //console.log("devices created!", devs);
+        setTimeout(function() { devs[0].value = 3; devs[0].text = "traill"; }, 5000);
     });
 });
 hs.on("request", function(req) {

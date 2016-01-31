@@ -144,11 +144,15 @@ Device.prototype = {
     get value() { return this._value; },
     get text() { return this._text; },
     set value(v) {
+        if (this._value === v)
+            return;
         this._value = v;
         var req = { type: "deviceValueSet", data: { id: this._id, value: v } };
         this._hs._ws.send(JSON.stringify(req));
     },
     set text(t) {
+        if (this._text === t)
+            return;
         this._text = t;
         var req = { type: "deviceTextSet", data: { id: this._id, text: t } };
         this._hs._ws.send(JSON.stringify(req));
